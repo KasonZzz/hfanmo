@@ -6,7 +6,7 @@
 					<view class="title">头像</view>
 					<view class="right">
 						<view class="tis">
-							<image src="/static/img/face.jpg" mode="widthFix"></image>
+							<image :src="user.avatar" mode="widthFix"></image>
 						</view>
 						<view class="icon xiangyou"></view>
 					</view>
@@ -14,55 +14,35 @@
 				<view class="row">
 					<view class="title">昵称</view>
 					<view class="right">
-						<view class="tis">大黑哥</view>
+						<view class="tis">{{user.nickName}}</view>
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
+				
+				<view class="row">
+					<view class="title">性别</view>
+					<view class="right">
+						<view class="tis">{{user.sex}}</view>
+						<view class="icon xiangyou"></view>
+					</view>
+				</view>
+				
 				<view class="row">
 					<view class="title">个性签名</view>
 					<view class="right">
-						<view class="tis">这人太懒了，什么都不写</view>
+						<view class="tis">{{user.signature}}</view>
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
-				<view class="row">
-					<view class="title">收货地址</view>
-					<view class="right">
-						<view class="tis"></view>
-						<view class="icon xiangyou"></view>
-					</view>
-				</view>
-				<view class="row">
-					<view class="title">账户安全</view>
+				<view class="row" @tap="toAddress()">
+					<view class="title">地址管理</view>
 					<view class="right">
 						<view class="tis"></view>
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
 			</view>
-			<view class="list">
-				<view class="row">
-					<view class="title">通知提醒</view>
-					<view class="right">
-						<view class="tis"></view>
-						<view class="icon xiangyou"></view>
-					</view>
-				</view>
-				<view class="row">
-					<view class="title">支付设置</view>
-					<view class="right">
-						<view class="tis"></view>
-						<view class="icon xiangyou"></view>
-					</view>
-				</view>
-				<view class="row">
-					<view class="title">通用</view>
-					<view class="right">
-						<view class="tis"></view>
-						<view class="icon xiangyou"></view>
-					</view>
-				</view>
-			</view>
+			
 			<view class="list">
 				<view class="row">
 					<view class="title">版本升级</view>
@@ -71,7 +51,7 @@
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
-				<view class="row">
+				<view class="row" @tap="clearCahche()">
 					<view class="title">清除缓存</view>
 					<view class="right">
 						<view class="tis"></view>
@@ -94,14 +74,44 @@
 	export default {
 		data() {
 			return {
-
+				user:{},
 			};
 		},
-		methods: {
+		onLoad() {
+			var UserInfo =localStorage.getItem("userInfo");
+			this.getUser(UserInfo);
+		},
+		methods: {	
+			getUser(e) {
+				uni.request({
+					url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
+					data: {
+						"key": e
+					},
+					success: (res) => {
+						console.log(res);
+						this.user = res.data;
+					},
+				});
+			},
+			toAddress(){
+				uni.navigateTo({
+					url: '../address/address?userId='+this.user.id
+				})
+			},
 			showType(tbIndex) {
 				this.tabbarIndex = tbIndex;
 				this.list = this.orderList[tbIndex];
+			},
+			clearCahche(){
+				localStorage.clear();
+				uni.clearStorageSync();
+				uni.showToast({
+					title: '清除缓存成功',
+					icon: "success"
+				});
 			}
+			
 		}
 	}
 </script>

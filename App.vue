@@ -1,7 +1,8 @@
 <script>
 	export default {
 		globalData: {
-			websiteUrl : 'http://192.168.0.106:8088/'
+			// websiteUrl : 'http://47.117.116.96:8088/'
+			websiteUrl : 'http://localhost:8088/'
 		},
 		onLaunch: function() {
 			console.log('App Launch')

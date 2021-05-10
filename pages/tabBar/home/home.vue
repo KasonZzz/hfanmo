@@ -1,11 +1,13 @@
 <template>
 	<view>
 		<!-- 状态栏 -->
-		<view v-if="showHeader" class="status" :style="{ position: headerPosition,top:statusTop,opacity: afterHeaderOpacity}"></view>
+		<view v-if="showHeader" class="status"
+			:style="{ position: headerPosition,top:statusTop,opacity: afterHeaderOpacity}"></view>
 		<!-- 顶部导航栏 -->
-		<view v-if="showHeader" class="header" :style="{ position: headerPosition,top:headerTop,opacity: afterHeaderOpacity }">
+		<view v-if="showHeader" class="header"
+			:style="{ position: headerPosition,top:headerTop,opacity: afterHeaderOpacity }">
 			<!-- 定位城市 -->
-			<view class="addr">
+			<view class="addr" @tap="chooseAddr()">
 				<view class="icon location"></view>
 				{{ city }}
 			</view>
@@ -31,7 +33,8 @@
 					</swiper-item>
 				</swiper>
 				<view class="indicator">
-					<view class="dots" v-for="(swiper, index) in swiperList" :class="[currentSwiper >= index ? 'on' : '']" :key="index"></view>
+					<view class="dots" v-for="(swiper, index) in swiperList"
+						:class="[currentSwiper >= index ? 'on' : '']" :key="index"></view>
 				</view>
 			</view>
 		</view>
@@ -47,22 +50,24 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<view class="title">
-				<view class="title-text" @click="recomment()" :class="[recIsSelected == true ?'title-text-choose':'title-text-none']">
+				<view class="title-text" @click="recomment()"
+					:class="[recIsSelected == true ?'title-text-choose':'title-text-none']">
 					推荐技师
 				</view>
-				<view class="title-text" @click="recommentToday()" :class="[rectIsSelected == true ?'title-text-choose':'title-text-none']">
+				<view class="title-text" @click="recommentToday()"
+					:class="[rectIsSelected == true ?'title-text-choose':'title-text-none']">
 					今日推荐
 				</view>
 			</view>
 			<view class="product-list">
-				<view class="product" v-for="product in productList" :key="product.goods_id" @tap="toGoods(product)">
-					<image mode="aspectFill" :src="product.img"></image>
-					<view class="name">{{ product.name }}</view>
+				<view class="product" v-for="mass in massList" :key="mass.id" @tap="toGoods(mass)">
+					<image mode="aspectFill" :src="mass.massAvatar"></image>
+					<view class="name">{{ mass.signature }}</view>
 					<view class="info">
 						<view class="price" style="">
-							<image class="left-image" src="../../../static/img/im/face/face_10.jpg"></image>
+							<image class="left-image" :src="mass.massAvatar"></image>
 							<view class="left-name">
-								yueyue
+								{{mass.nickName}}
 							</view>
 						</view>
 						<view class="slogan">3km</view>
@@ -87,9 +92,11 @@
 				headerTop: null,
 				statusTop: null,
 				nVueTitle: null,
-				page:1,
-				pageSize:2,
-				city: '北京',
+				myLng: null,
+				myLat: null,
+				page: 1,
+				pageSize: 4,
+				city: '合肥',
 				currentSwiper: 0,
 				// 轮播图片
 				swiperList: [],
@@ -116,79 +123,7 @@
 					}
 				],
 				Promotion: [],
-				massList:[],
-				//猜你喜欢列表
-				productList: [{
-						goods_id: 0,
-						img: '/static/img/mn/1.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '3km'
-					},
-					{
-						goods_id: 1,
-						img: '/static/img/mn/2.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '3km'
-					},
-					{
-						goods_id: 2,
-						img: '/static/img/mn/3.png',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '5km'
-					},
-					{
-						goods_id: 3,
-						img: '/static/img/mn/4.png',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '6km'
-					},
-					{
-						goods_id: 4,
-						img: '/static/img/goods/p5.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '2km'
-					},
-					{
-						goods_id: 5,
-						img: '/static/img/goods/p6.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '12km'
-					},
-					{
-						goods_id: 6,
-						img: '/static/img/goods/p7.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '3km'
-					},
-					{
-						goods_id: 7,
-						img: '/static/img/goods/p8.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '1km'
-					},
-					{
-						goods_id: 8,
-						img: '/static/img/goods/p9.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '0.5km'
-					},
-					{
-						goods_id: 9,
-						img: '/static/img/goods/p10.jpg',
-						name: '这是介绍这是介绍这是介绍这是介绍',
-						price: '￥168',
-						slogan: '8km'
-					}
-				],
+				massList: [],
 				loadingText: '正在加载...'
 			};
 		},
@@ -206,84 +141,131 @@
 		},
 		//上拉加载，需要自己在page.json文件中配置"onReachBottomDistance"
 		onReachBottom() {
-			uni.showToast({
-				title: '触发上拉加载'
-			});
-			let len = this.productList.length;
-			if (len >= 40) {
-				this.loadingText = '到底了';
-				A
-				return false;
-			}
-			// 演示,随机加入商品,生成环境请替换为ajax请求
-			let end_goods_id = this.productList[len - 1].goods_id;
-			// for (let i = 1; i <= 10; i++) {
-			// 	let goods_id = end_goods_id + i;
-			// 	let p = {
-			// 		goods_id: goods_id,
-			// 		img: '/static/img/goods/p' + (goods_id % 10 == 0 ? 10 : goods_id % 10) + '.jpg',
-			// 		name: '这是介绍这是介绍这是介绍这是介绍',
-			// 		price: '￥168',
-			// 		slogan: '1235人付款'
-			// 	};
-			// 	this.productList.push(p);
-			// }
+			this.page += this.page;
+			this.queryMassInfo();
 		},
 		onLoad() {
-			uni.request({
-			    url: getApp().globalData.websiteUrl+'spaAppBanner/queryByStatus', //仅为示例，并非真实接口地址。
-			    data: {
-			        "status": '0'
-			    },
-			    success: (res) => {
-			        // console.log(res.data.data);
-					this.swiperList = res.data.data;
-			    }
-			});
+			/**
+			 * 定位信息
+			 */
+			this.getlocation();
 			
-			uni.request({
-			    url: getApp().globalData.websiteUrl+'spaAppMassagist/queryByPage', //仅为示例，并非真实接口地址。
-			    data: {
-			        "page": this.page,
-					"pageSize":this.pageSize
-			    },
-			    success: (res) => {
-			        // console.log(res.data.data);
-					// alert(JSON.stringify(res.data.data))
-					this.massList = res.data.data;
-			    }
-			});
-			
-			
+			/**
+			 * 导航栏
+			 */
+			this.getBanner();
+
+			/**
+			 * 技师信息
+			 */
+			this.queryMassInfo();
+
+
 		},
 		methods: {
-
+			//获取定位信息 
+			getlocation(){
+				uni.getLocation({
+					type: 'wgs84',
+					success: function(res) {
+						this.myLat = res.latitude;
+						this.myLng = res.longitude;
+						console.log(res.address);
+						if (!res.address && res.address != undefined) {
+							var address = res.address;
+							if (!address.street && address.street != undefined) {
+								this.city = address.street;
+							} else if (!address.district && address.district != undefined) {
+								this.city = address.district;
+							} else if (!address.city && address.city != undefined) {
+								this.city = address.city;
+							} else if (!address.province && address.province != undefined) {
+								this.city = address.province;
+							}
+						} else {
+							uni.showToast({
+								title: '获取位置失败',
+								duration: 6000,
+								icon: "none"
+							});
+						}
+					}
+				});
+			},
+			
+			
+			getBanner(){
+				// banner图
+				uni.request({
+					url: getApp().globalData.websiteUrl + 'spaAppBanner/queryByStatus',
+					data: {
+						"status": '0'
+					},
+					success: (res) => {
+						// console.log(res.data.data);
+						this.swiperList = res.data.data;
+					}
+				});
+			},
 			//消息列表
 			toMsg() {
 				uni.navigateTo({
 					url: '../../msg/msg'
 				})
 			},
+
+			chooseAddr() {
+				uni.chooseLocation({
+					success: function(res) {
+						this.myLat = res.latitude;
+						this.myLng = res.longitude;
+						this.city = res.name;
+						console.log("1111" + this.city);
+						console.log('位置名称：' + res.name);
+						console.log('详细地址：' + res.address);
+						console.log('纬度：' + res.latitude);
+						console.log('经度：' + res.longitude);
+					}
+				});
+			},
+			queryMassInfo() {
+				uni.request({
+					url: getApp().globalData.websiteUrl + 'spaAppMassagist/queryByPage',
+					data: {
+						"page": this.page,
+						"pageSize": this.pageSize
+					},
+					success: (res) => {
+						if (res.data.data.length > 0) {
+							for (var i = 0; i < res.data.data.length; i++) {
+								this.massList.push(res.data.data[i]);
+							}
+						} else {
+							this.loadingText = "已经到底了";
+						}
+					}
+				});
+			},
 			//搜索跳转
 			toSearch() {
-				uni.showToast({
-					title: '建议跳转到新页面做搜索功能'
-				});
+				// uni.showToast({
+				// 	title: '建议跳转到新页面做搜索功能'
+				// });
 			},
 			//轮播图跳转
 			toSwiper(e) {
-				console.log(e);
-				uni.showToast({
-					title: e.imageUrl,
-					icon: 'none'
-				});
+				// console.log(e);
+				// uni.showToast({
+				// 	title: e.imageUrl,
+				// 	icon: 'none'
+				// });
 			},
 			//分类跳转
 			toCategory(e) {
-				uni.setStorageSync('catName', e.name);
-				uni.navigateTo({
-					url: '../../goods/goods-list/goods-list?cid=' + e.id + '&name=' + e.name
-				});
+				// uni.setStorageSync('catName', e.name);
+				// uni.navigateTo({
+				// 	url: '../../goods/goods-list/goods-list?cid=' + e.id + '&name=' + e.name
+				// });
 			},
 			//商品跳转
 			toGoods(e) {

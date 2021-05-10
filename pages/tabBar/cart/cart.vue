@@ -25,7 +25,7 @@
 					<!-- 商品信息 -->
 					<view class="goods-info" @tap="toGoods(row)">
 						<view class="img">
-							<image :src="row.img"></image>
+							<image :src="row.img" mode="aspectFill"></image>
 						</view>
 						<view class="info">
 							<view class="title">{{row.name}}</view>
@@ -79,11 +79,11 @@
 				selectedList:[],
 				isAllselected:false,
 				goodsList:[
-					{id:1,img:'/static/img/goods/p1.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:2,img:'/static/img/goods/p2.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:3,img:'/static/img/goods/p3.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:4,img:'/static/img/goods/p4.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false},
-					{id:5,img:'/static/img/goods/p5.jpg',name:'商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题商品标题',spec:'规格:S码',price:127.5,number:1,selected:false}
+					{id:1,img:'/static/img/1.jpg',name:'这是项目这是项目这是项目这是项目这是项目这是项目这是项目',spec:'时长：90分钟',price:127.5,number:1,selected:false},
+					{id:2,img:'/static/img/2.jpg',name:'这是项目',spec:'时长:90分钟',price:127.5,number:1,selected:false},
+					{id:3,img:'/static/img/3.jpg',name:'这是项目',spec:'时长：90分钟',price:127.5,number:1,selected:false},
+					{id:4,img:'/static/img/4.jpg',name:'这是项目',spec:'时长：90分钟',price:127.5,number:1,selected:false},
+					{id:5,img:'/static/img/5.jpg',name:'这是项目',spec:'时长：90分钟',price:127.5,number:1,selected:false}
 				],
 				//控制滑动效果
 				theIndex:null,

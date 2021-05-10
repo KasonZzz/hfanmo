@@ -16,7 +16,7 @@
 					<image mode="widthFix" :src="goods.img"></image>
 					<view class="name">{{goods.name}}</view>
 					<view class="info">
-						<view class="price">{{goods.price}}</view>
+						<!-- <view class="price">{{goods.price}}</view> -->
 						<view class="slogan">{{goods.slogan}}</view>
 					</view>
 				</view>
@@ -32,73 +32,38 @@
 			return {
 				goodsList: [{
 						goods_id: 0,
-						img: '/static/img/goods/p1.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
+						img: '/static/img/1.jpg',
+						name: '技师名称1',
 						price: '￥168',
-						slogan: '1235人付款'
+						slogan: '1235人浏览'
 					},
 					{
 						goods_id: 1,
-						img: '/static/img/goods/p2.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
+						img: '/static/img/2.jpg',
+						name: '技师名称2',
 						price: '￥168',
-						slogan: '1235人付款'
+						slogan: '1235人浏览'
 					},
 					{
 						goods_id: 2,
-						img: '/static/img/goods/p3.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
+						img: '/static/img/3.jpg',
+						name: '技师名称3',
 						price: '￥168',
-						slogan: '1235人付款'
+						slogan: '1235人浏览'
 					},
 					{
 						goods_id: 3,
-						img: '/static/img/goods/p4.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
+						img: '/static/img/4.jpg',
+						name: '技师名称4',
 						price: '￥168',
-						slogan: '1235人付款'
+						slogan: '1235人浏览'
 					},
 					{
 						goods_id: 4,
-						img: '/static/img/goods/p5.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
+						img: '/static/img/5.jpg',
+						name: '技师名称5',
 						price: '￥168',
-						slogan: '1235人付款'
-					},
-					{
-						goods_id: 5,
-						img: '/static/img/goods/p6.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
-						price: '￥168',
-						slogan: '1235人付款'
-					},
-					{
-						goods_id: 6,
-						img: '/static/img/goods/p7.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
-						price: '￥168',
-						slogan: '1235人付款'
-					},
-					{
-						goods_id: 7,
-						img: '/static/img/goods/p8.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
-						price: '￥168',
-						slogan: '1235人付款'
-					},
-					{
-						goods_id: 8,
-						img: '/static/img/goods/p9.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
-						price: '￥168',
-						slogan: '1235人付款'
-					},
-					{
-						goods_id: 9,
-						img: '/static/img/goods/p10.jpg',
-						name: '商品名称商品名称商品名称商品名称商品名称',
-						price: '￥168',
-						slogan: '1235人付款'
+						slogan: '1235人浏览'
 					}
 				],
 				loadingText: "正在加载...",
