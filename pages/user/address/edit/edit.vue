@@ -60,6 +60,7 @@
 
 <script>
 	import mpvueCityPicker from '@/components/mpvue-citypicker/mpvueCityPicker.vue'
+	var that = null;
 	export default {
 		components: {
 			mpvueCityPicker
@@ -82,6 +83,38 @@
 				}
 			};
 		},
+		onLoad(e) {
+			//获取传递过来的参数
+			that = this;
+			this.editType = e.type;
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					//用户信息赋值
+					that.getUser(e.data);
+				}
+			})
+			if (e.type === "edit") {
+				console.log(e.id);
+				this.getById(e.id);
+				this.id = e.id;
+			}
+		
+		},
+		onShow() {
+			console.log("show。。。。。。。。。。。");
+		},
+		onBackPress() {
+			if (this.$refs.mpvueCityPicker.showPicker) {
+				this.$refs.mpvueCityPicker.pickerCancel();
+				return true;
+			}
+		},
+		onUnload() {
+			if (this.$refs.mpvueCityPicker.showPicker) {
+				this.$refs.mpvueCityPicker.pickerCancel()
+			}
+		},
 		methods: {
 			onCancel(e) {
 				console.log(e)
@@ -103,7 +136,7 @@
 					success: (res) => {
 						if (res.confirm) {
 							uni.request({
-								method:"POST",
+								method: "POST",
 								url: getApp().globalData.websiteUrl + 'spaAppDomicile/delById',
 								data: {
 									"id": this.id
@@ -123,7 +156,7 @@
 			save() {
 				console.log(this.userId);
 				let data = {
-					"userId":this.userId,
+					"userId": this.userId,
 					"name": this.name,
 					"headCode": this.name.substr(0, 1),
 					"phoneNum": this.tel,
@@ -143,11 +176,19 @@
 					return;
 				}
 				if (!data.phoneNum) {
+					
 					uni.showToast({
 						title: '请输入收件人电话号码',
 						icon: 'none'
 					});
 					return;
+				}
+				if (!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(data.phoneNum))) {
+					uni.showToast({
+						title: '请填写正确手机号码',
+						icon: "none"
+					});
+					return; 
 				}
 				if (!data.address) {
 					uni.showToast({
@@ -205,51 +246,30 @@
 					},
 				});
 			},
-			getById(id){
+			/**
+			 * @param {Object} id   用户ID
+			 */
+			getById(id) {
 				uni.request({
-					method:"POST",
+					method: "POST",
 					url: getApp().globalData.websiteUrl + 'spaAppDomicile/getById',
 					data: {
 						"id": id
 					},
 					success: (res) => {
-						console.log(111);
-						console.log(res);
 						var data = res.data.data;
 						this.tel = data.phoneNum;
 						this.name = data.name;
 						this.region = JSON.parse(data.area);
 						this.detailed = data.address;
 						this.isDefault = JSON.parse(data.status);
-						// this.userId = res.data;
+
 					},
 				});
 			}
-			
+
 		},
-		onLoad(e) {
-			//获取传递过来的参数
-			this.editType = e.type;
-			var UserInfo =localStorage.getItem("userInfo");
-			this.getUser(UserInfo)
-			if(e.type === "edit"){
-				console.log(e.id);
-				this.getById(e.id);
-				this.id = e.id;
-			}
-			
-		},
-		onBackPress() {
-			if (this.$refs.mpvueCityPicker.showPicker) {
-				this.$refs.mpvueCityPicker.pickerCancel();
-				return true;
-			}
-		},
-		onUnload() {
-			if (this.$refs.mpvueCityPicker.showPicker) {
-				this.$refs.mpvueCityPicker.pickerCancel()
-			}
-		}
+		
 	};
 </script>
 <style lang="scss">

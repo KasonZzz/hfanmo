@@ -8,7 +8,7 @@
 			:style="{ position: headerPosition,top:headerTop,opacity: afterHeaderOpacity }">
 			<!-- 定位城市 -->
 			<view class="addr" @tap="chooseAddr()">
-				<view class="icon location"></view>
+				<view class="icon location citySize"></view>
 				{{ city }}
 			</view>
 			<!-- 搜索框 -->
@@ -81,6 +81,7 @@
 
 <script>
 	var ttt = 0;
+	var that =null;
 	export default {
 		data() {
 			return {
@@ -145,10 +146,11 @@
 			this.queryMassInfo();
 		},
 		onLoad() {
+			that = this;
 			/**
 			 * 定位信息
 			 */
-			this.getlocation();
+			this.getlocation(); 
 			
 			/**
 			 * 导航栏
@@ -167,20 +169,22 @@
 			getlocation(){
 				uni.getLocation({
 					type: 'wgs84',
+					geocode:"true",
 					success: function(res) {
-						this.myLat = res.latitude;
-						this.myLng = res.longitude;
-						console.log(res.address);
-						if (!res.address && res.address != undefined) {
+						that.myLat = res.latitude;
+						that.myLng = res.longitude;
+						if (res.address!=null && res.address != undefined) {
 							var address = res.address;
-							if (!address.street && address.street != undefined) {
-								this.city = address.street;
-							} else if (!address.district && address.district != undefined) {
-								this.city = address.district;
-							} else if (!address.city && address.city != undefined) {
-								this.city = address.city;
-							} else if (!address.province && address.province != undefined) {
-								this.city = address.province;
+							
+							if (address.street!=null && address.street != undefined) {
+								console.log(address.street);
+								that.city = address.street;
+							} else if (address.district!=null && address.district != undefined) {
+								that.city = address.district;
+							} else if (address.city!=null && address.city != undefined) {
+								that.city = address.city;
+							} else if (address.province!=null && address.province != undefined) {
+								that.city = address.province;
 							}
 						} else {
 							uni.showToast({
@@ -215,12 +219,14 @@
 			},
 
 			chooseAddr() {
+				console.log(999);
 				uni.chooseLocation({
 					success: function(res) {
-						this.myLat = res.latitude;
-						this.myLng = res.longitude;
-						this.city = res.name;
-						console.log("1111" + this.city);
+						console.log(res);
+						that.myLat = res.latitude;
+						that.myLng = res.longitude;
+						that.city = res.name;
+						console.log("1111" + res.city);
 						console.log('位置名称：' + res.name);
 						console.log('详细地址：' + res.address);
 						console.log('纬度：' + res.latitude);
@@ -269,12 +275,9 @@
 			},
 			//商品跳转
 			toGoods(e) {
-				uni.showToast({
-					title: '商品' + e.goods_id,
-					icon: 'none'
-				});
+				console.log(e);
 				uni.navigateTo({
-					url: '../../massagist/massagist'
+					url: '../../massagist/massagist?id='+e.id
 				});
 			},
 			//轮播图指示器
@@ -346,7 +349,12 @@
 		/*  #ifdef  APP-PLUS  */
 		top: var(--status-bar-height);
 		/*  #endif  */
-
+		
+		.citySize{
+			white-space: nowrap;
+			text-overflow:ellipsis; 
+			overflow:hidden; 
+		}
 		.addr {
 			width: 120upx;
 			height: 60upx;
@@ -521,7 +529,6 @@
 	}
 
 	.goods-list {
-
 		// background-color: #f4f4f4;
 		.title {
 			width: 100%;

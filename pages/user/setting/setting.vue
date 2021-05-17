@@ -18,7 +18,7 @@
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
-				
+
 				<view class="row">
 					<view class="title">性别</view>
 					<view class="right">
@@ -26,7 +26,7 @@
 						<view class="icon xiangyou"></view>
 					</view>
 				</view>
-				
+
 				<view class="row">
 					<view class="title">个性签名</view>
 					<view class="right">
@@ -42,7 +42,7 @@
 					</view>
 				</view>
 			</view>
-			
+
 			<view class="list">
 				<view class="row">
 					<view class="title">版本升级</view>
@@ -71,17 +71,29 @@
 </template>
 
 <script>
+	let that = null;
 	export default {
 		data() {
 			return {
-				user:{},
+				user: {},
 			};
 		},
 		onLoad() {
-			var UserInfo =localStorage.getItem("userInfo");
-			this.getUser(UserInfo);
+			//将this赋值
+			that = this;
+			//从缓存中拿到用户信息
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					//用户信息赋值
+					that.getUser(e.data);
+				}
+			})
 		},
-		methods: {	
+		methods: {
+			/**
+			 * 获取用户信息
+			 */
 			getUser(e) {
 				uni.request({
 					url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
@@ -94,16 +106,18 @@
 					},
 				});
 			},
-			toAddress(){
+			/**
+			 * 跳转地址页面
+			 */
+			toAddress() {
 				uni.navigateTo({
-					url: '../address/address?userId='+this.user.id
+					url: '../address/address'
 				})
 			},
-			showType(tbIndex) {
-				this.tabbarIndex = tbIndex;
-				this.list = this.orderList[tbIndex];
-			},
-			clearCahche(){
+			/**
+			 * 清理缓存
+			 */
+			clearCahche() {
 				localStorage.clear();
 				uni.clearStorageSync();
 				uni.showToast({
@@ -111,7 +125,7 @@
 					icon: "success"
 				});
 			}
-			
+
 		}
 	}
 </script>

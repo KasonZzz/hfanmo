@@ -36,6 +36,7 @@
 	</view>
 </template>
 <script>
+	var that = null;
 	export default {
 		data() {
 			return {
@@ -87,12 +88,21 @@
 			})
 		},
 		onLoad(e) {
-			var UserInfo =localStorage.getItem("userInfo");
-			this.getUser(UserInfo);
+			that = this;
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					//用户信息赋值
+					that.getUser(e.data);
+				}
+			})
 			
 			if (e.type == 'select') {
 				this.isSelect = true;
 			}
+		},
+		onShow() {
+			this.getAddress();
 		},
 		methods: {
 			getUser(e) {
@@ -102,9 +112,7 @@
 						"key": e
 					},
 					success: (res) => {
-						console.log(res);
 						this.userId = res.data.id;
-						console.log(this.userId);
 						this.getAddress();
 					},
 				});
@@ -117,10 +125,7 @@
 						"userId": this.userId
 					},
 					success: (res) => {
-						console.log("test111");
-						console.log(res);
 						this.addressList = res.data.data;
-						console.log(this.addressList);
 					},
 				});
 			},

@@ -18,7 +18,7 @@
 		<view class="user">
 			<!-- 头像 -->
 			<view class="left">
-				<image :src="user.avatar"  @tap="toSetting"></image>
+				<image :src="user.avatar" @tap="toSetting"></image>
 			</view>
 			<!-- 昵称,个性签名 -->
 			<view class="right">
@@ -68,6 +68,7 @@
 	</view>
 </template>
 <script>
+	let that = null
 	export default {
 		data() {
 			return {
@@ -157,43 +158,48 @@
 			this.statusTop = e.scrollTop >= 0 ? null : -this.statusHeight + 'px';
 		},
 		onLoad() {
+			that = this;
 			this.statusHeight = 0;
 			// #ifdef APP-PLUS
 			this.showHeader = false;
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
 
-			var userInfo = localStorage.getItem("userInfo");
-			this.getUser(userInfo);
-
-
+			// var userInfo = localStorage.getItem("userInfo");
+			
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					that.getUser(e.data);
+				}
+			})
 		},
 		onReady() {
-			//此处，演示,每次页面初次渲染都把登录状态重置
-			uni.setStorage({
-				key: 'UserInfo',
-				data: false,
-				success: function() {},
-				fail: function(e) {}
-			});
+			// //此处，演示,每次页面初次渲染都把登录状态重置
+			// uni.setStorage({
+			// 	key: 'UserInfo',
+			// 	data: false,
+			// 	success: function() {},
+			// 	fail: function(e) {}
+			// });
 		},
 		onShow() {
-			uni.getStorage({
-				key: 'UserInfo',
-				success: (res) => {
-					if (!res.data) {
-						if (this.isfirst) {
-							//this.toLogin();
-						}
-						return;
-					}
-					this.user = res.data;
-					console.log(this.user);
-				},
-				fail: (e) => {
-					//this.toLogin(); 
-				}
-			});
+			// uni.getStorage({
+			// 	key: 'UserInfo',
+			// 	success: (res) => {
+			// 		if (!res.data) {
+			// 			if (this.isfirst) {
+			// 				//this.toLogin();
+			// 			}
+			// 			return;
+			// 		}
+			// 		this.user = res.data;
+			// 		console.log(this.user);
+			// 	},
+			// 	fail: (e) => {
+			// 		//this.toLogin(); 
+			// 	}
+			// });
 		},
 		methods: {
 			getUser(e) {

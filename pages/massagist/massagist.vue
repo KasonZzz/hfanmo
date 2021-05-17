@@ -8,7 +8,7 @@
 			<!-- 头像-信息 -->
 			<view class="avatarBox">
 				<view class="avatatBox1">
-					<image class="avatar" :src="userInfo.massAvatar" mode="aspectFill"></image>
+					<image class="avatar" :src="userInfo.massAvatar" @tap="showImg(userInfo.massAvatar)" mode="aspectFill"></image>
 					<view class="infoBox">
 						<view class="info1">
 							<view class="username">
@@ -26,15 +26,19 @@
 					</view>
 				</view>
 			</view>
-
+ 
 
 			<!-- 在线接单-认证档案 -->
 			<view class="authBox">
-				<view class="order">
+				<view class="order" v-if="(userInfo.status == 0)">
 					在线接单中
 				</view>
+				
+				<view class="order" style="color: red;" v-if="(userInfo.status == 1)">
+					技师休息中
+				</view>
 				<view class="auth">
-					<view class="auth-text">健康码</view>
+					<view class="auth-text" v-if="userInfo.healthCode!=''" @tap="showImg(userInfo.healthCode)" >健康码</view>
 					<view class="auth-text">实名认证</view>
 					<view class="auth-text">资质认证</view>
 				</view>
@@ -56,7 +60,7 @@
 			<view class="" style="display: flex;">
 				<view class="image-item" v-for="(item,index) in userPic" :key="index">
 					<view class="image-content">
-						<image class="userPic" mode="aspectFill" :src="item.url" @tap="showImg(index)"></image>
+						<image class="userPic" mode="aspectFill" :src="item.url" @tap="showMassImg(index)"></image>
 					</view>
 				</view>
 			</view>
@@ -85,11 +89,7 @@
 		<!-- 商品列表 -->
 		<view class="goods-list">
 			<!-- <view class="tis" v-if="goodsList.length==0">购物车是空的哦~</view> -->
-			<view class="row" v-for="(row,index) in goodsList" :key="index">
-				<!-- 删除按钮 -->
-				<view class="menu" @tap.stop="deleteGoods(row.id)">
-					<view class="icon shanchu"></view>
-				</view>
+			<view class="row" v-for="(row,index) in productList" :key="index">
 				<!-- 商品 -->
 				<view class="carrier" :class="[theIndex==index?'open':oldIndex==index?'close':'']"
 					@touchstart="touchStart(index,$event)" @touchmove="touchMove(index,$event)"
@@ -106,8 +106,8 @@
 							<image :src="row.img" mode="aspectFill"></image>
 						</view>
 						<view class="info">
-							<view class="title">{{row.name}}</view>
-							<view class="spec">{{row.spec}}</view>
+							<view class="title">{{row.productName}}</view>
+							<view class="spec">{{row.productDesc}}</view>
 							<view class="price-number">
 								<view class="price">￥{{row.price}}/{{row.time}}分钟</view>
 								<view class="number">
@@ -146,65 +146,70 @@
 </template>
 
 <script>
+	var that = null
 	export default {
 		data() {
 			return {
+				massId:'',
+				userId:'',
 				sumPrice: '0.00',
 				selectedList: [],
 				isAllselected: false,
 				userInfo:{},
 				userPic:[],
-				goodsList: [{
-						id: 1,
-						img: '/static/img/1.jpg',
-						name: '精油推背',
-						spec: '服务姿势：俯卧、仰卧',
-						price: '298.00',
-						time:'60',
-						number: 0,
-						selected: false
-					},
-					{
-						id: 2,
-						img: '/static/img/2.jpg',
-						name: '香薰舒缓spa',
-						spec: '服务姿势：俯卧、仰卧',
-						price: '298.00',
-						time:'60',
-						number: 0,
-						selected: false
-					},
-					{
-						id: 3,
-						img: '/static/img/3.jpg',
-						name: '芳香精油spa',
-						spec: '服务姿势：俯卧、仰卧',
-						price: '298.00',
-						time:'60',
-						number: 0,
-						selected: false
-					},
-					{
-						id: 4,
-						img: '/static/img/4.jpg',
-						name: '中式全身按摩',
-						spec: '服务姿势：俯卧、仰卧',
-						price: '298.00',
-						time:'60',
-						number: 0,
-						selected: false
-					},
-					{
-						id: 5,
-						img: '/static/img/5.jpg',
-						name: '君悦招牌spa',
-						spec: '服务姿势：俯卧、仰卧',
-						price: '298.00',
-						time:'60',
-						number: 0,
-						selected: false
-					}
-				],
+				picList:[],
+				productList:[],
+				// goodsList: [{
+				// 		id: 1,
+				// 		img: '/static/img/1.jpg',
+				// 		name: '精油推背',
+				// 		spec: '服务姿势：俯卧、仰卧',
+				// 		price: '298.00',
+				// 		time:'60',
+				// 		number: 0,
+				// 		selected: false
+				// 	},
+				// 	{
+				// 		id: 2,
+				// 		img: '/static/img/2.jpg',
+				// 		name: '香薰舒缓spa',
+				// 		spec: '服务姿势：俯卧、仰卧',
+				// 		price: '298.00',
+				// 		time:'60',
+				// 		number: 0,
+				// 		selected: false
+				// 	},
+				// 	{
+				// 		id: 3,
+				// 		img: '/static/img/3.jpg',
+				// 		name: '芳香精油spa',
+				// 		spec: '服务姿势：俯卧、仰卧',
+				// 		price: '298.00',
+				// 		time:'60',
+				// 		number: 0,
+				// 		selected: false
+				// 	},
+				// 	{
+				// 		id: 4,
+				// 		img: '/static/img/4.jpg',
+				// 		name: '中式全身按摩',
+				// 		spec: '服务姿势：俯卧、仰卧',
+				// 		price: '298.00',
+				// 		time:'60',
+				// 		number: 0,
+				// 		selected: false
+				// 	},
+				// 	{
+				// 		id: 5,
+				// 		img: '/static/img/5.jpg',
+				// 		name: '君悦招牌spa',
+				// 		spec: '服务姿势：俯卧、仰卧',
+				// 		price: '298.00',
+				// 		time:'60',
+				// 		number: 0,
+				// 		selected: false
+				// 	}
+				// ],
 				//控制滑动效果
 				theIndex: null,
 				oldIndex: null,
@@ -223,7 +228,16 @@
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
-		onLoad() {
+		onLoad(e) {
+			that = this;
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					//用户信息赋值
+					that.getUser(e.data);
+				}
+			})
+			that.massId = e.id;
 			//兼容H5下结算条位置
 			// #ifdef H5
 			this.footerbottom = document.getElementsByTagName('uni-tabbar')[0].offsetHeight + 'px';
@@ -232,29 +246,78 @@
 			this.showHeader = false;
 			this.statusHeight = plus.navigator.getStatusbarHeight();
 			// #endif
+			 
+			this.getMassInfo();
+			this.getProductByMassId();
+		},
+		methods: {
+			getUser(e) {
+				uni.request({
+					url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
+					data: {
+						"key": e
+					},
+					success: (res) => {
+						this.userId = res.data.id;
+					},
+				});
+			},
+			showMassImg(index) {
+				uni.previewImage({
+					current: index,
+					urls: this.picList,
+					indicator: 'number',
+					loop: true
+				});
+			},
 			
+			showImg(img) {
+				console.log(img);
+				var imgs= [];
+				if(img !=''){
+					imgs.push(img);
+					uni.previewImage({
+						current: 0,
+						urls: imgs,
+						indicator: 'number',
+						loop: true
+					});
+				}
+				
+			},
 			/**
 			 * 请求技师详情数据
 			 */
-			uni.request({
-			    url: getApp().globalData.websiteUrl+'spaAppMassagist/queryById', 
-			    data: {
-			        "id": '1372376037760983042'
-			    },
-			    success: (res) => {
-					this.userInfo = res.data.data;
-					this.userPic = res.data.data.spaAppMassPics;
-					// alert(JSON.stringify(res.data.data.spaAppMassPics))
-			    }
-			});
-			
-			
-		},
-		methods: {
-			showImg(index) {
-				uni.previewImage({
-					urls: this.userPic,
-					current: index,
+			getMassInfo(){
+				uni.request({
+				    url: getApp().globalData.websiteUrl+'spaAppMassagist/queryById', 
+				    data: {
+				        "id": that.massId
+				    },
+				    success: (res) => {
+						//渲染用户信息
+						this.userInfo = res.data.data;
+						//渲染用户相册
+						this.userPic = res.data.data.spaAppMassPics;
+						//用户图片查看
+						var pics = res.data.data.spaAppMassPics;
+						for (var i = 0; i < pics.length; i++) {
+							this.picList.push(pics[i].url)
+						}
+				    }
+				});
+			},
+			getProductByMassId(){
+				uni.request({
+					method:'POST',
+				    url: getApp().globalData.websiteUrl+'spaAppMassProduct/getProductByMassId', 
+				    data: {
+				        "massId": that.massId
+				    },
+				    success: (res) => {
+						this.productList=res.data.data;
+						console.log(this.productList);
+				    }
 				});
 			},
 			//加入商品 参数 goods:商品数据
@@ -344,10 +407,12 @@
 			//跳转确认订单页面
 			toConfirmation() {
 				let tmpList = [];
-				let len = this.goodsList.length;
+				let len = this.productList.length;
 				for (let i = 0; i < len; i++) {
-					if (this.goodsList[i].selected) {
-						tmpList.push(this.goodsList[i]);
+					this.productList[i].massId = this.massId;
+					this.productList[i].userId = this.userId;
+					if (this.productList[i].selected) {
+						tmpList.push(this.productList[i]);
 					}
 				}
 				if (tmpList.length < 1) {
@@ -362,7 +427,7 @@
 					data: tmpList,
 					success: () => {
 						uni.navigateTo({
-							url: '../../order/confirmation'
+							url: '../order/confirmation'
 						})
 					}
 				})
@@ -388,52 +453,54 @@
 					this.deleteGoods(this.selectedList[0]);
 				}
 				this.selectedList = [];
-				this.isAllselected = this.selectedList.length == this.goodsList.length && this.goodsList.length > 0;
+				this.isAllselected = this.selectedList.length == this.productList.length && this.productList.length > 0;
 				this.sum();
 			},
 			// 选中商品
 			selected(index) {
-				this.goodsList[index].selected = this.goodsList[index].selected ? false : true;
-				let i = this.selectedList.indexOf(this.goodsList[index].id);
-				i > -1 ? this.selectedList.splice(i, 1) : this.selectedList.push(this.goodsList[index].id);
-				this.isAllselected = this.selectedList.length == this.goodsList.length;
+				this.productList[index].selected = this.productList[index].selected ? false : true;
+				let i = this.selectedList.indexOf(this.productList[index].id);
+				i > -1 ? this.selectedList.splice(i, 1) : this.selectedList.push(this.productList[index].id);
+				this.isAllselected = this.selectedList.length == this.productList.length;
 				this.sum();
 			},
 			//全选
 			allSelect() {
-				let len = this.goodsList.length;
+				let len = this.productList.length;
 				let arr = [];
 				for (let i = 0; i < len; i++) {
-					this.goodsList[i].selected = this.isAllselected ? false : true;
-					arr.push(this.goodsList[i].id);
+					this.productList[i].selected = this.isAllselected ? false : true;
+					arr.push(this.productList[i].id);
 				}
 				this.selectedList = this.isAllselected ? [] : arr;
-				this.isAllselected = this.isAllselected || this.goodsList.length == 0 ? false : true;
+				this.isAllselected = this.isAllselected || this.productList.length == 0 ? false : true;
 				this.sum();
 			},
 			// 减少数量
 			sub(index) {
-				if (this.goodsList[index].number <= 0) {
+				if (this.productList[index].number <= 0) {
 					return;
 				}
-				this.goodsList[index].number--;
+				this.productList[index].number--;
 				this.sum();
 			},
 			// 增加数量
 			add(index) {
-				this.goodsList[index].number++;
+				this.productList[index].number++;
 				this.sum();
 			},
 			// 合计
 			sum(e, index) {
 				this.sumPrice = 0;
-				let len = this.goodsList.length;
+				let len = this.productList.length;
+				console.log(len);
 				for (let i = 0; i < len; i++) {
-					if (this.goodsList[i].selected) {
+					console.log(this.productList[i].selected);
+					if (this.productList[i].selected) {
 						if (e && i == index) {
-							this.sumPrice = this.sumPrice + (e.detail.value * this.goodsList[i].price);
+							this.sumPrice = this.sumPrice + (e.detail.value * this.productList[i].price);
 						} else {
-							this.sumPrice = this.sumPrice + (this.goodsList[i].number * this.goodsList[i].price);
+							this.sumPrice = this.sumPrice + (this.productList[i].number * this.productList[i].price);
 						}
 					}
 				}

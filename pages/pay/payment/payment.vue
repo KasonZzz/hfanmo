@@ -55,15 +55,27 @@
 </template>
 
 <script>
+	var that = null;
 	export default {
 		data() {
 			return {
+				userId:'',
 				amount:0,
 				orderName:'',
-				paytype:'alipay'//支付类型
+				paytype:'alipay',//支付类型
+				productList:[]
 			};
 		},
 		onLoad(e) {
+			that = this;
+			uni.getStorage({
+				key: "userInfo",
+				success(e) {
+					//用户信息赋值
+					that.getUser(e.data);
+				}
+			})
+			
 			this.amount = parseFloat(e.amount).toFixed(2);
 			uni.getStorage({
 				key:'paymentOrder',
@@ -73,6 +85,7 @@
 					}else{
 						this.orderName = e.data[0].name;
 					}
+					this.productList = e.data;
 					uni.removeStorage({
 						key:'paymentOrder'
 					})
@@ -80,11 +93,36 @@
 			})
 		},
 		methods:{
+			getUser(e) {
+				uni.request({
+					url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
+					data: {
+						"key": e
+					},
+					success: (res) => {
+						this.userId = res.data.id;
+					},
+				});
+			},
 			doDeposit(){
 				//模板模拟支付，实际应用请调起微信/支付宝
 				uni.showLoading({
 					title:'支付中...'
 				});
+				
+				/**
+				 * 添加订单记录
+				 */
+				uni.request({
+					method:"POST",
+					url: getApp().globalData.websiteUrl + 'spaAppOrder/addOrder',
+					data: this.productList,
+					success: (res) => {
+						console.log(res);
+					},
+				});
+				
+				
 				setTimeout(()=>{
 					uni.hideLoading();
 					uni.showToast({

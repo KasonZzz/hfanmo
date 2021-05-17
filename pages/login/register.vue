@@ -27,6 +27,7 @@
 	export default {
 		data() {
 			return {
+				key: "",
 				phoneNumber: "",
 				code: '',
 				passwd: "",
@@ -36,27 +37,39 @@
 			}
 		},
 		onLoad() {
-			var key = localStorage.getItem("userInfo");
-			if (key != undefined) {
-				uni.request({
-					url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
-					data: {
-						"key": key
-					},
-					success: (res) => {
-						localStorage.setItem("userInfo", "userInfo_" + res.data.mobile);
-						uni.switchTab({
-							url: '../tabBar/home/home'
-						});
-
-					}
-				});
-			}
-
+			this.getUserInfo();
 		},
 		methods: {
+			getUserInfo() {
+				uni.getStorage({
+					key: "userInfo",
+					success(e) {
+						var data = e.data //这就是你想要取的token
+						if (data != undefined && data != "") {
+							uni.request({
+								url: getApp().globalData.websiteUrl + 'redis/getUserInfo',
+								data: {
+									"key": data
+								},
+								success: (res) => {
+									uni.setStorage({
+										key: "userInfo",
+										data: "userInfo_" + res.data.mobile
+									})
+									uni.switchTab({
+										url: '../tabBar/home/home'
+									});
+								}
+							});
+						}
+					}
+				})
+			},
+
+
 			Timer() {},
 			getCode() {
+
 				uni.hideKeyboard()
 				if (this.getCodeisWaiting) {
 					return;
@@ -71,7 +84,7 @@
 				this.getCodeText = "发送中..."
 				this.getCodeisWaiting = true;
 				this.getCodeBtnColor = "rgba(255,255,255,0.5)"
-
+				console.log(111);
 				/**
 				 * 获取验证码
 				 */
@@ -88,6 +101,9 @@
 							icon: "none"
 						});
 						this.setTimer();
+					},
+					fail(res) {
+						console.log(res);
 					}
 				});
 			},
@@ -133,16 +149,24 @@
 						"smsCode": this.code
 					},
 					success: (res) => {
-					
+
 						console.log(res);
 						uni.showToast({
 							title: '登录成功',
 							icon: "none"
 						});
-						localStorage.setItem("userInfo","userInfo_" + res.data.data.mobile);
+						uni.setStorage({
+							key: "userInfo",
+							data: "userInfo_" + res.data.data.mobile
+						})
+						// localStorage.setItem("userInfo", );
+						console.log(111);
 						uni.switchTab({
 							url: '../tabBar/home/home'
 						})
+					},
+					fail(res) {
+						console.log(res);
 					}
 				});
 
